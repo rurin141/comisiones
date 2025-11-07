@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_sale_commission_report" model="ir.actions.report">
+        <field name="name">Reporte de Comisiones por Vendedor</field>
+        <field name="model">sale.commission</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sale_commissions.report_sale_commission_view</field>
+        <field name="print_report_name">'Comisiones_Vendedor_%s' % (object.date.strftime('%Y-%m'))</field>
+        <field name="binding_model_id" ref="model_sale_commission"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_saleorder_document_commission_line" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//div[@id='informations']" position="after">
+            <t t-set="commission" t-value="request.env['sale.commission'].search([('sale_id', '=', doc.id)], limit=1)"/>
+            <t t-if="commission">
+                <div class="row mt32 mb32">
+                    <div class="col-auto mw-100 mb-2">
+                        <strong>Información de Comisión:</strong>
+                        <div class="bg-light p-2">
+                            <ul class="list-unstyled">
+                                <li>**Número de Venta:** <t t-esc="doc.name"/></li>
+                                <li>**Fecha de Venta (Confirmación):** <span t-field="doc.date_order" t-options='{"widget": "date"}'/></li>
+                                <li>**Monto Total de la Comisión:** <span t-field="commission.commission_amount" t-options='{"widget": "monetary", "display_currency": commission.currency_id}'/></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </template>
+</odoo>

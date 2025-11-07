@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_sale_commission_view">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2 class="text-center">Reporte de Comisiones de Venta</h2>
+
+                    <t t-set="commissions_by_partner" t-value="docs.sorted(key=lambda x: x.partner_id.name)"/>
+                    <t t-set="current_partner" t-value="False"/>
+
+                    <t t-foreach="commissions_by_partner" t-as="commission">
+                        <t t-if="current_partner != commission.partner_id">
+                            <t t-set="current_partner" t-value="commission.partner_id"/>
+                            
+                            <h3 class="mt32">Vendedor: <t t-esc="current_partner.name"/> (<t t-esc="current_partner.commission_percentage"/>%)</h3>
+                            
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Número de Venta</th>
+                                        <th>Fecha de Venta</th>
+                                        <th class="text-right">Monto Total de la Venta</th>
+                                        <th class="text-right">Monto Total de la Comisión</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-set="partner_commissions" t-value="docs.filtered(lambda x: x.partner_id == current_partner)"/>
+                                    <t t-foreach="partner_commissions" t-as="c">
+                                        <tr>
+                                            <td><span t-field="c.sale_id.name"/></td>
+                                            <td><span t-field="c.date" t-options='{"widget": "datetime"}'/></td>
+                                            <td class="text-right"><span t-field="c.amount_total"/></td>
+                                            <td class="text-right"><span t-field="c.commission_amount"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-light font-weight-bold">
+                                        <td colspan="3" class="text-right">Total Comisión del Vendedor:</td>
+                                        <td class="text-right">
+                                            <t t-set="total_commission" t-value="sum(c.commission_amount for c in partner_commissions)"/>
+                                            <span t-esc="total_commission" t-options='{"widget": "monetary", "display_currency": docs[0].currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </t>
+                    </t>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>
